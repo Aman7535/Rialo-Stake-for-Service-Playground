@@ -1,5 +1,3 @@
----
-
 # 🟣 Rialo Stake-for-Service Playground
 
 An interactive **frontend-only simulation** demonstrating how **staking rewards can autonomously pay for on-chain services** — based entirely on the Rialo **Stake-for-Service** (SfS) model.
