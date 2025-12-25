@@ -128,9 +128,16 @@ Routing Fraction φₚ
 ## 🧩 How to Run Locally
 
 ```bash
-git clone <your-repo-url>
-cd your-repo-folder
-open index.html
+# 1️⃣ Clone
+git clone https://github.com/Aman7535/Rialo-Stake-for-Service-Playground.git
+
+# 2️⃣ Go inside the folder you just downloaded
+cd Rialo-Stake-for-Service-Playground
+
+# 3️⃣ Open the project in browser
+open index.html   # (Mac)
+start index.html  # (Windows)
+xdg-open index.html # (Linux)
 ```
 
 (or drag `index.html` into your browser)
