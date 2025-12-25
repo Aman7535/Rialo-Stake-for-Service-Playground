@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rialo Stake-for-Service Playground</title>
+    <!-- Favicon (Emoji) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💎</text></svg>">
+    
+    <!-- Tailwind CSS for Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // Tailwind Configuration for Brand Colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandMint: '#A9DDD3',
+                        brandBeige: '#E8E3D5',
+                        brandBlack: '#010101',
+                        brandWhite: '#FFFFFF'
+                    },
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #E8E3D5;
+            color: #010101;
+        }
+        /* Custom "Playground" Card Styling */
+        .playground-card {
+            background: #FFFFFF;
+            border: 2px solid #010101;
+            border-radius: 24px;
+            box-shadow: 4px 4px 0px #010101;
+            transition: transform 0.1s ease;
+            position: relative; /* For tooltip positioning */
+            z-index: 10;
+        }
+        .playground-card:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 6px 6px 0px #010101;
+            z-index: 20; /* Pop to front on hover */
+        }
+        /* Button Styling */
+        .btn-primary {
+            background-color: #010101;
+            color: #FFFFFF;
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            background-color: #333;
+        }
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+        /* Custom Range Slider */
+        .slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #010101;
+            cursor: pointer;
+            border: 2px solid #A9DDD3;
+        }
+        /* Chart container constraint */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-height: 250px;
+        }
+        /* Tooltip Arrow */
+        .tooltip-arrow {
+            position: absolute;
+            bottom: -6px;
+            right: 10px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #010101;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <!-- Header -->
+    <header class="w-full max-w-6xl mb-8 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-2">Rialo Stake-for-Service Playground</h1>
+            <p class="text-gray-600 max-w-xl">Simulate how routing rewards creates Service Credits. Adjust the stake and routing fraction to see the ServicePaymaster (SPM) in action.</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex gap-2">
+            <span class="px-4 py-2 bg-brandBlack text-white rounded-full text-sm font-bold">Sim Mode</span>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+
+        <!-- Left Column: Controls & Inputs (4 cols) -->
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            
+            <!-- SfS Position Setup -->
+            <div class="playground-card p-6 flex flex-col gap-4">
+                <!-- Info Icon Wrapper -->
+                <div class="flex justify-between items-center border-b-2 border-brandBlack pb-2">
+                    <h2 class="text-xl font-bold">1. SfS Position Setup</h2>
+                    <div class="relative group">
+                        <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
+                        <!-- Tooltip -->
+                        <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            Configure your staking parameters. <strong>Total Staked</strong> sets the reward size, while <strong>Routing Fraction</strong> determines how much goes to Service Credits vs. Wallet.
+                            <div class="tooltip-arrow"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stake Input -->
+                <div>
+                    <label class="block text-sm font-bold mb-1">Total Staked (RLO)</label>
+                    <div class="flex items-center bg-gray-100 rounded-xl px-4 py-2 border border-gray-300 focus-within:border-brandBlack focus-within:ring-1 focus-within:ring-brandBlack">
+                        <span class="text-xl font-bold mr-2">💎</span>
+                        <input type="number" id="stakeInput" value="10000" min="1000" step="1000" class="bg-transparent w-full text-lg font-bold outline-none font-mono">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Generates staking rewards each epoch.</p>
+                </div>
+
+                <!-- Routing Fraction Slider -->
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <label class="block text-sm font-bold">Routing Fraction (φₚ)</label>
+                        <span id="routingValDisplay" class="text-xl font-mono font-bold text-brandBlack bg-brandMint px-2 rounded">50%</span>
+                    </div>
+                    <input type="range" id="routingSlider" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1 font-mono">
+                        <span>0% (All Wallet)</span>
+                        <span>100% (All Service)</span>
+                    </div>
+                </div>
+
+                <!-- Split Preview -->
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
+                        <div class="text-xs text-gray-500 uppercase">Liquid Reward</div>
+                        <div class="font-bold text-gray-800" id="liquidSplitPreview">50%</div>
+                    </div>
+                    <div class="bg-brandMint/30 p-3 rounded-xl border border-brandMint text-center">
+                        <div class="text-xs text-gray-600 uppercase font-bold">Service Credits</div>
+                        <div class="font-bold text-brandBlack" id="serviceSplitPreview">50%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Controller -->
+            <div class="playground-card p-6 flex flex-col gap-4 flex-grow">
+                <div class="flex justify-between items-center border-b-2 border-brandBlack pb-2">
+                    <h2 class="text-xl font-bold">Service Consumer</h2>
+                    <div class="flex items-center gap-2">
+                        <div id="statusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-500">STOPPED</div>
+                        <!-- Info Icon -->
+                        <div class="relative group">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
+                            <!-- Tooltip -->
+                            <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                Simulates an app spending credits for gas/fees. It deducts from the <strong>ServicePaymaster</strong> every tick. If depleted, the service stops.
+                                <div class="tooltip-arrow"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-4 border border-dashed border-gray-300 text-center h-full flex flex-col justify-center items-center gap-3">
+                    <div class="text-4xl" id="serviceIcon">⚙️</div>
+                    <p class="text-sm text-gray-600">Simulates on-chain activity consuming credits.</p>
+                    <p class="font-mono text-xs text-gray-400">Cost: 5 Credits / tick</p>
+                </div>
+
+                <button id="toggleServiceBtn" class="btn-primary w-full py-4 text-lg shadow-lg">
+                    Start Service
+                </button>
+                <div id="depletionEstimation" class="text-center text-xs font-mono text-red-500 font-bold h-4">
+                    <!-- Dynamic Text -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Column: Visuals & Metrics (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- Big Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- ServicePaymaster Balance -->
+                <div class="playground-card p-6 bg-brandMint relative overflow-visible">
+                    <div class="absolute right-4 top-4 z-20">
+                         <!-- Info Icon -->
+                         <div class="relative group">
+                            <div class="w-6 h-6 rounded-full bg-white/50 text-brandBlack flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
+                            <!-- Tooltip -->
+                            <div class="absolute right-0 bottom-full mb-2 w-48 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                The <strong>ServicePaymaster (SPM)</strong> balance. These credits are auto-minted via the Routing Fraction to pay for services.
+                                <div class="tooltip-arrow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -right-4 -top-4 text-9xl opacity-10 font-bold select-none overflow-hidden pointer-events-none">φ</div>
+                    
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-brandBlack/70 mb-1">ServicePaymaster (SPM)</h3>
+                    <div class="text-4xl font-mono font-bold tracking-tighter" id="creditBalanceDisplay">0.00</div>
+                    <p class="text-xs font-bold mt-2">Available Service Credits</p>
+                </div>
+                
+                <!-- Wallet Rewards -->
+                <div class="playground-card p-6 relative">
+                    <div class="absolute right-4 top-4">
+                         <!-- Info Icon -->
+                         <div class="relative group">
+                            <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
+                            <!-- Tooltip -->
+                            <div class="absolute right-0 bottom-full mb-2 w-48 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                <strong>Liquid Rewards</strong> sent directly to your wallet. These are <em>not</em> routed to the SPM and cannot pay for service credits.
+                                <div class="tooltip-arrow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-1">Liquid Rewards</h3>
+                    <div class="text-4xl font-mono font-bold tracking-tighter text-gray-800" id="walletBalanceDisplay">0.00</div>
+                    <p class="text-xs text-gray-400 mt-2">Accrued to Wallet</p>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="playground-card p-6 flex-grow flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">Credit Balance vs. Time</h3>
+                    <!-- Info Icon -->
+                    <div class="relative group">
+                        <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
+                        <!-- Tooltip -->
+                        <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            Tracks the SPM Credit Balance in real-time. <br><strong>Up:</strong> Accumulating via Staking. <br><strong>Down:</strong> Consuming via Service Usage.
+                            <div class="tooltip-arrow"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex-grow bg-white rounded-xl border border-gray-100 p-2 flex items-center justify-center">
+                    <div class="chart-container" style="height: 300px; width: 100%;">
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+             <!-- Donut Chart Small -->
+             <div class="playground-card p-4">
+                 <div class="flex items-center justify-between">
+                     <div class="w-1/2">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="text-sm font-bold">Allocation</h3>
+                             <!-- Info Icon -->
+                            <div class="relative group">
+                                <div class="w-5 h-5 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
+                                <!-- Tooltip -->
+                                <div class="absolute left-0 bottom-full mb-2 w-48 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                    Visualizes the <strong>Routing Fraction (φₚ)</strong>. Green represents the portion routed to Service Credits; Black is kept as Liquid Rewards.
+                                    <div class="tooltip-arrow" style="left: 10px; right: auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+                         <p class="text-xs text-gray-500 leading-relaxed">Visualizing the split defined by φₚ.</p>
+                     </div>
+                     <div class="w-1/2 h-32 flex justify-center items-center">
+                         <div class="chart-container" style="max-height: 120px; width: 120px;">
+                             <canvas id="donutChart"></canvas>
+                         </div>
+                     </div>
+                 </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Educational (3 cols) -->
+        <div class="lg:col-span-3 flex flex-col gap-6">
+            
+            <!-- Architecture Diagram -->
+            <div class="playground-card p-6 bg-white">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-sm font-bold uppercase tracking-wider">Architecture</h3>
+                    <!-- Info Icon -->
+                    <div class="relative group">
+                        <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
+                        <!-- Tooltip -->
+                        <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            The Stake-for-Service flow: Rewards accumulate in the Position, pass through the Routing Fraction (φₚ), and split into Liquid Rewards and Service Credits.
+                            <div class="tooltip-arrow"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 items-center text-xs font-bold text-center">
+                    
+                    <!-- Step 1 -->
+                    <div class="w-full bg-gray-100 p-2 rounded-lg border border-gray-300">
+                        SfS Position
+                    </div>
+                    <div class="text-gray-400">↓</div>
+                    
+                    <!-- Step 2 -->
+                    <div class="w-full bg-gray-100 p-2 rounded-lg border border-gray-300">
+                        Staking Rewards
+                    </div>
+                    <div class="text-gray-400">↓</div>
+                    
+                    <!-- Router -->
+                    <div class="w-10 h-10 rounded-full bg-brandBlack text-white flex items-center justify-center text-lg z-10 shadow-lg">
+                        φₚ
+                    </div>
+                    
+                    <!-- Split Paths -->
+                    <div class="w-full flex justify-between -mt-5 pt-8 relative">
+                        <!-- Connecting Lines -->
+                        <div class="absolute top-0 left-1/2 w-[45%] h-6 border-t-2 border-l-2 border-gray-300 -translate-x-full rounded-tl-xl"></div>
+                        <div class="absolute top-0 right-1/2 w-[45%] h-6 border-t-2 border-r-2 border-gray-300 rounded-tr-xl"></div>
+
+                        <!-- Path Left -->
+                        <div class="w-[48%] flex flex-col gap-1">
+                            <div class="bg-gray-50 p-2 rounded border border-dashed border-gray-300 text-gray-500">
+                                Liquid Rewards
+                            </div>
+                        </div>
+
+                        <!-- Path Right -->
+                        <div class="w-[48%] flex flex-col gap-1">
+                            <div class="bg-brandMint p-2 rounded border border-black text-brandBlack">
+                                Service Paymaster
+                            </div>
+                            <div class="text-gray-400">↓</div>
+                            <div class="bg-brandMint/50 p-2 rounded border border-brandMint text-brandBlack">
+                                Service Credits
+                            </div>
+                            <div class="text-gray-400">↓</div>
+                            <div class="bg-gray-800 text-white p-2 rounded border border-black">
+                                Service Usage
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Math Section -->
+            <div class="playground-card p-6 bg-brandBlack text-white">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-brandMint text-sm font-bold uppercase tracking-wider">The Formula</h3>
+                     <!-- Info Icon -->
+                     <div class="relative group">
+                        <div class="w-5 h-5 rounded-full bg-gray-700 text-gray-300 flex items-center justify-center text-xs font-bold cursor-help hover:bg-brandMint hover:text-brandBlack transition-colors">?</div>
+                        <!-- Tooltip -->
+                        <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandWhite text-brandBlack border border-brandBlack text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            Mathematical definition: Service Credits next epoch = Sum of Routing Fraction times Rewards per position.
+                            <div class="tooltip-arrow" style="border-top-color: #fff;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="font-mono text-lg bg-gray-900 p-3 rounded-lg border border-gray-700 mb-4 text-center">
+                    R<sup>(svc)</sup><sub>(t+1)</sub> = Σ [ φ<sub>p</sub> × r<sub>p(t+1)</sub> ]
+                </div>
+                <div class="space-y-3 text-sm text-gray-300 leading-snug">
+                    <p><strong class="text-brandMint">R<sup>(svc)</sup></strong>: Accumulated Service Credits.</p>
+                    <p><strong class="text-brandMint">φ<sub>p</sub></strong>: Routing Fraction (The slider).</p>
+                    <p><strong class="text-brandMint">r<sub>p</sub></strong>: Rewards generated by the Position.</p>
+                </div>
+            </div>
+
+            <!-- Info Text -->
+            <div class="playground-card p-6">
+                <h3 class="text-sm font-bold uppercase mb-2">How it works</h3>
+                <p class="text-sm text-gray-600 leading-relaxed mb-2">
+                    Stakers designate a routing fraction <span class="font-mono font-bold text-black bg-brandMint/50 px-1 rounded">φₚ</span>. This portion of rewards is automatically routed to the <span class="font-bold">ServicePaymaster (SPM)</span>.
+                </p>
+                <p class="text-sm text-gray-600 leading-relaxed">
+                    The SPM mints <strong>Service Credits</strong> which automatically pay for on-chain service usage, eliminating manual payments.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-6xl text-center mt-8 mb-12 text-gray-500 text-sm">
+        <p class="mb-2">
+            For more info visit <a href="https://www.rialo.io/posts/stake-for-service" target="_blank" class="font-bold text-brandBlack hover:underline">Rialo Official blog</a>
+        </p>
+        <p>Built by Aman for Rialo ❤️</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- State Management ---
+        const state = {
+            stakeAmount: 10000,
+            routingFraction: 0.5, // 50%
+            creditsBalance: 0,
+            walletBalance: 0,
+            serviceStatus: 'STOPPED', // STOPPED, RUNNING, LOW
+            baseRewardRate: 0.05, // 5% per simulation tick (accelerated for UI)
+            serviceCostPerTick: 5, // Balanced cost
+            ticks: 0,
+            history: {
+                labels: [],
+                credits: [],
+                wallet: [] // Not plotted on main line chart but tracked
+            }
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            stakeInput: document.getElementById('stakeInput'),
+            routingSlider: document.getElementById('routingSlider'),
+            routingDisplay: document.getElementById('routingValDisplay'),
+            liquidSplit: document.getElementById('liquidSplitPreview'),
+            serviceSplit: document.getElementById('serviceSplitPreview'),
+            creditDisplay: document.getElementById('creditBalanceDisplay'),
+            walletDisplay: document.getElementById('walletBalanceDisplay'),
+            toggleBtn: document.getElementById('toggleServiceBtn'),
+            statusBadge: document.getElementById('statusBadge'),
+            serviceIcon: document.getElementById('serviceIcon'),
+            estimation: document.getElementById('depletionEstimation'),
+            timeChartCanvas: document.getElementById('timeChart'),
+            donutChartCanvas: document.getElementById('donutChart')
+        };
+
+        // --- Chart Initialization ---
+        
+        // 1. Line Chart (Credits vs Time)
+        const timeCtx = els.timeChartCanvas.getContext('2d');
+        const timeChart = new Chart(timeCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Service Credits',
+                    data: [],
+                    borderColor: '#010101',
+                    backgroundColor: 'rgba(169, 221, 211, 0.5)', // Mint transparent
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 },
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#010101',
+                        titleColor: '#A9DDD3',
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `Credits: ${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { display: false },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        ticks: { font: { family: 'DM Sans' } }
+                    }
+                }
+            }
+        });
+
+        // 2. Donut Chart (Reward Split)
+        const donutCtx = els.donutChartCanvas.getContext('2d');
+        const donutChart = new Chart(donutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Service', 'Wallet'],
+                datasets: [{
+                    data: [50, 50],
+                    backgroundColor: ['#A9DDD3', '#010101'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+
+        // --- Logic Functions ---
+
+        function updateUI() {
+            // Update Displays
+            els.creditDisplay.innerText = state.creditsBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            els.walletDisplay.innerText = state.walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            
+            // Update Slider Labels
+            const pct = Math.round(state.routingFraction * 100);
+            els.routingDisplay.innerText = `${pct}%`;
+            els.liquidSplit.innerText = `${100 - pct}%`;
+            els.serviceSplit.innerText = `${pct}%`;
+
+            // Update Status Badge
+            if (state.serviceStatus === 'RUNNING') {
+                els.statusBadge.innerText = 'RUNNING';
+                els.statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600 animate-pulse';
+                els.toggleBtn.innerText = 'Stop Service';
+                els.toggleBtn.classList.replace('bg-brandBlack', 'bg-red-500');
+                els.serviceIcon.classList.add('animate-spin');
+            } else if (state.serviceStatus === 'LOW') {
+                els.statusBadge.innerText = 'CREDITS LOW';
+                els.statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600';
+                els.toggleBtn.innerText = 'Start Service';
+                els.toggleBtn.classList.replace('bg-red-500', 'bg-brandBlack');
+                els.serviceIcon.classList.remove('animate-spin');
+            } else {
+                els.statusBadge.innerText = 'STOPPED';
+                els.statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-500';
+                els.toggleBtn.innerText = 'Start Service';
+                els.toggleBtn.classList.replace('bg-red-500', 'bg-brandBlack');
+                els.serviceIcon.classList.remove('animate-spin');
+            }
+
+            // Estimate Depletion
+            if (state.serviceStatus === 'RUNNING') {
+                const netChange = (state.stakeAmount * state.baseRewardRate * state.routingFraction) - state.serviceCostPerTick;
+                if (netChange >= 0) {
+                    els.estimation.innerText = "Sustainable ✅";
+                    els.estimation.className = "text-center text-xs font-mono text-green-600 font-bold h-4";
+                } else {
+                    const ticksLeft = Math.abs(state.creditsBalance / netChange);
+                    els.estimation.innerText = `Depletion in ~${Math.ceil(ticksLeft)} ticks`;
+                    els.estimation.className = "text-center text-xs font-mono text-red-500 font-bold h-4";
+                }
+            } else {
+                els.estimation.innerText = "";
+            }
+
+            // Update Donut Chart Data
+            donutChart.data.datasets[0].data = [pct, 100 - pct];
+            donutChart.update();
+        }
+
+        function simulationTick() {
+            // 1. Calculate Rewards
+            // Scaled down for simulation smoothness
+            const rewardPerTick = state.stakeAmount * 0.001; 
+            
+            const serviceReward = rewardPerTick * state.routingFraction;
+            const walletReward = rewardPerTick * (1 - state.routingFraction);
+
+            // 2. Add to Balances
+            state.creditsBalance += serviceReward;
+            state.walletBalance += walletReward;
+
+            // 3. Handle Service Consumption
+            if (state.serviceStatus === 'RUNNING') {
+                if (state.creditsBalance >= state.serviceCostPerTick) {
+                    state.creditsBalance -= state.serviceCostPerTick;
+                } else {
+                    // Depleted
+                    state.creditsBalance = 0;
+                    state.serviceStatus = 'LOW';
+                }
+            }
+
+            // 4. Update History
+            state.ticks++;
+            state.history.labels.push(state.ticks);
+            state.history.credits.push(state.creditsBalance);
+
+            // Keep array size manageable
+            if (state.history.labels.length > 50) {
+                state.history.labels.shift();
+                state.history.credits.shift();
+            }
+
+            // 5. Update Line Chart
+            timeChart.data.labels = state.history.labels;
+            timeChart.data.datasets[0].data = state.history.credits;
+            timeChart.update();
+
+            updateUI();
+        }
+
+        // --- Event Listeners ---
+
+        els.stakeInput.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value);
+            if (val < 0) val = 0;
+            state.stakeAmount = val;
+            updateUI();
+        });
+
+        els.routingSlider.addEventListener('input', (e) => {
+            state.routingFraction = parseInt(e.target.value) / 100;
+            updateUI();
+        });
+
+        els.toggleBtn.addEventListener('click', () => {
+            if (state.serviceStatus === 'RUNNING') {
+                state.serviceStatus = 'STOPPED';
+            } else {
+                // Initial kickstart if low
+                if (state.creditsBalance < state.serviceCostPerTick) {
+                    state.creditsBalance = 50; 
+                }
+                state.serviceStatus = 'RUNNING';
+            }
+            updateUI();
+        });
+
+        // --- Initialization ---
+        updateUI();
+        setInterval(simulationTick, 500); // 2 ticks per second
+
+        // Placeholder comments required by prompt
+        /* <!-- Chosen Palette: Mint #A9DDD3, Soft Beige #E8E3D5, Deep Black #010101 -->
+           <!-- Application Structure Plan: 
+                Single-page "Playground" layout with added Info Icons for educational context.
+                Top Left: Controls (Inputs) + Tooltips.
+                Bottom Left: Service Consumer + Tooltips.
+                Center: Visual feedback loop + Tooltips on cards.
+                Right: Educational context (Architecture & Formula) + Tooltips.
+           -->
+           <!-- Visualization & Content Choices:
+                1. Goal: Inform about the Mechanic. 
+                   Viz: Architecture Diagram. Method: HTML/CSS Flexbox. Justification: Shows flow of value clearly without complex SVG.
+                2. Goal: Compare Allocation. 
+                   Viz: Donut Chart. Method: Chart.js. Justification: Best for showing part-to-whole relationships.
+                3. Goal: Show Simulation over Time.
+                   Viz: Line Chart. Method: Chart.js. Justification: Essential to show accumulation vs depletion rates.
+                4. Goal: Contextual Help.
+                   Viz: CSS Tooltips on Hover. Method: Tailwind 'group-hover'. Justification: Provides definitions without cluttering the UI.
+           -->
+           <!-- CONFIRMATION: NO SVG graphics used (except favicon). NO Mermaid JS used. -->
+        */
+
+    </script>
+</body>
+</html>
