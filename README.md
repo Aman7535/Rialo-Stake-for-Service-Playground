@@ -1,5 +1,7 @@
 # 🟣 Rialo Stake-for-Service Playground
 
+Check here: https://rialo-stake-for-service-playground.vercel.app/
+
 An interactive **frontend-only simulation** demonstrating how **staking rewards can autonomously pay for on-chain services** — based entirely on the Rialo **Stake-for-Service** (SfS) model.
 
 This playground visually teaches the core mechanism from the official Rialo blog:
