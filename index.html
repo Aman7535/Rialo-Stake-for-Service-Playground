@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rialo Stake-for-Service Playground</title>
-    <!-- Favicon (Emoji) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💎</text></svg>">
     
-    <!-- Tailwind CSS for Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     
     <script>
@@ -109,8 +105,7 @@
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
 
-    <!-- Header -->
-    <header class="w-full max-w-6xl mb-8 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+    <header class="w-full max-w-[98%] mb-8 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
         <div>
             <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-2">Rialo Stake-for-Service Playground</h1>
             <p class="text-gray-600 max-w-xl">Simulate how routing rewards creates Service Credits. Adjust the stake and routing fraction to see the ServicePaymaster (SPM) in action.</p>
@@ -120,20 +115,15 @@
         </div>
     </header>
 
-    <!-- Main Dashboard Grid -->
-    <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+    <div class="w-full max-w-[98%] grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
 
-        <!-- Left Column: Controls & Inputs (4 cols) -->
-        <div class="lg:col-span-4 flex flex-col gap-6">
+        <div class="lg:col-span-3 flex flex-col gap-6">
             
-            <!-- SfS Position Setup -->
             <div class="playground-card p-6 flex flex-col gap-4">
-                <!-- Info Icon Wrapper -->
                 <div class="flex justify-between items-center border-b-2 border-brandBlack pb-2">
                     <h2 class="text-xl font-bold">1. SfS Position Setup</h2>
                     <div class="relative group">
                         <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
-                        <!-- Tooltip -->
                         <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                             Configure your staking parameters. <strong>Total Staked</strong> sets the reward size, while <strong>Routing Fraction</strong> determines how much goes to Service Credits vs. Wallet.
                             <div class="tooltip-arrow"></div>
@@ -141,7 +131,6 @@
                     </div>
                 </div>
                 
-                <!-- Stake Input -->
                 <div>
                     <label class="block text-sm font-bold mb-1">Total Staked (RLO)</label>
                     <div class="flex items-center bg-gray-100 rounded-xl px-4 py-2 border border-gray-300 focus-within:border-brandBlack focus-within:ring-1 focus-within:ring-brandBlack">
@@ -151,7 +140,6 @@
                     <p class="text-xs text-gray-500 mt-1">Generates staking rewards each epoch.</p>
                 </div>
 
-                <!-- Routing Fraction Slider -->
                 <div>
                     <div class="flex justify-between items-end mb-2">
                         <label class="block text-sm font-bold">Routing Fraction (φₚ)</label>
@@ -164,7 +152,6 @@
                     </div>
                 </div>
 
-                <!-- Split Preview -->
                 <div class="grid grid-cols-2 gap-2 mt-2">
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
                         <div class="text-xs text-gray-500 uppercase">Liquid Reward</div>
@@ -177,16 +164,13 @@
                 </div>
             </div>
 
-            <!-- Service Controller -->
             <div class="playground-card p-6 flex flex-col gap-4 flex-grow">
                 <div class="flex justify-between items-center border-b-2 border-brandBlack pb-2">
                     <h2 class="text-xl font-bold leading-tight">On-Chain Service Execution</h2>
                     <div class="flex items-center gap-2">
                         <div id="statusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-500">STOPPED</div>
-                        <!-- Info Icon -->
                         <div class="relative group">
                             <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
-                            <!-- Tooltip -->
                             <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 Simulates an app spending credits for gas/fees. It deducts from the <strong>ServicePaymaster</strong> every tick. If depleted, the service stops.
                                 <div class="tooltip-arrow"></div>
@@ -205,23 +189,17 @@
                     Start Service
                 </button>
                 <div id="depletionEstimation" class="text-center text-xs font-mono text-red-500 font-bold h-4">
-                    <!-- Dynamic Text -->
-                </div>
+                    </div>
             </div>
         </div>
 
-        <!-- Center Column: Visuals & Metrics (5 cols) -->
-        <div class="lg:col-span-5 flex flex-col gap-6">
+        <div class="lg:col-span-6 flex flex-col gap-6">
             
-            <!-- Big Metrics -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- ServicePaymaster Balance -->
                 <div class="playground-card p-6 bg-brandMint relative overflow-visible">
                     <div class="absolute right-4 top-4 z-20">
-                         <!-- Info Icon -->
                          <div class="relative group">
                             <div class="w-6 h-6 rounded-full bg-white/50 text-brandBlack flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
-                            <!-- Tooltip -->
                             <div class="absolute right-0 bottom-full mb-2 w-48 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 The <strong>ServicePaymaster (SPM)</strong> balance. These credits are auto-minted via the Routing Fraction to pay for services.
                                 <div class="tooltip-arrow"></div>
@@ -235,13 +213,10 @@
                     <p class="text-xs font-bold mt-2">Available Service Credits</p>
                 </div>
                 
-                <!-- Wallet Rewards -->
                 <div class="playground-card p-6 relative">
                     <div class="absolute right-4 top-4">
-                         <!-- Info Icon -->
                          <div class="relative group">
                             <div class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
-                            <!-- Tooltip -->
                             <div class="absolute right-0 bottom-full mb-2 w-48 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 <strong>Liquid Rewards</strong> sent directly to your wallet. These are <em>not</em> routed to the SPM and cannot pay for service credits.
                                 <div class="tooltip-arrow"></div>
@@ -254,14 +229,11 @@
                 </div>
             </div>
 
-            <!-- Charts -->
             <div class="playground-card p-6 flex-grow flex flex-col">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold">Credit Balance vs. Time</h3>
-                    <!-- Info Icon -->
                     <div class="relative group">
                         <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
-                        <!-- Tooltip -->
                         <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                             Tracks the SPM Credit Balance in real-time. <br><strong>Up:</strong> Accumulating via Staking. <br><strong>Down:</strong> Consuming via Service Usage.
                             <div class="tooltip-arrow"></div>
@@ -276,16 +248,13 @@
                 </div>
             </div>
             
-             <!-- Donut Chart Small -->
              <div class="playground-card p-4">
                  <div class="flex items-center justify-between">
                      <div class="w-1/2">
                         <div class="flex items-center gap-2 mb-1">
                             <h3 class="text-sm font-bold">Allocation</h3>
-                             <!-- Info Icon -->
-                            <div class="relative group">
+                             <div class="relative group">
                                 <div class="w-5 h-5 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
-                                <!-- Tooltip -->
                                 <div class="absolute left-0 bottom-full mb-2 w-48 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                     Visualizes the <strong>Routing Fraction (φₚ)</strong>. Green represents the portion routed to Service Credits; Black is kept as Liquid Rewards.
                                     <div class="tooltip-arrow" style="left: 10px; right: auto;"></div>
@@ -303,17 +272,13 @@
             </div>
         </div>
 
-        <!-- Right Column: Educational (3 cols) -->
         <div class="lg:col-span-3 flex flex-col gap-6">
             
-            <!-- Architecture Diagram -->
             <div class="playground-card p-6 bg-white">
                 <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <h3 class="text-sm font-bold uppercase tracking-wider">Architecture</h3>
-                    <!-- Info Icon -->
                     <div class="relative group">
                         <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold cursor-help hover:bg-brandBlack hover:text-white transition-colors">?</div>
-                        <!-- Tooltip -->
                         <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandBlack text-white text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                             The Stake-for-Service flow: Rewards accumulate in the Position, pass through the Routing Fraction (φₚ), and split into Liquid Rewards and Service Credits.
                             <div class="tooltip-arrow"></div>
@@ -323,39 +288,31 @@
 
                 <div class="flex flex-col gap-2 items-center text-xs font-bold text-center">
                     
-                    <!-- Step 1 -->
                     <div class="w-full bg-gray-100 p-2 rounded-lg border border-gray-300">
                         SfS Position
                     </div>
                     <div class="text-gray-400">↓</div>
                     
-                    <!-- Step 2 -->
                     <div class="w-full bg-gray-100 p-2 rounded-lg border border-gray-300">
                         Staking Rewards
                     </div>
                     <div class="text-gray-400">↓</div>
                     
-                    <!-- Router -->
                     <div class="w-10 h-10 rounded-full bg-brandBlack text-white flex items-center justify-center text-lg z-10 shadow-lg">
                         φₚ
                     </div>
                     
-                    <!-- Split Paths -->
                     <div class="w-full flex justify-between -mt-5 pt-8 relative">
-                        <!-- Connecting Lines -->
                         <div class="absolute top-0 left-1/2 w-[45%] h-6 border-t-2 border-l-2 border-gray-300 -translate-x-full rounded-tl-xl"></div>
                         <div class="absolute top-0 right-1/2 w-[45%] h-6 border-t-2 border-r-2 border-gray-300 rounded-tr-xl"></div>
 
-                        <!-- Path Left -->
                         <div class="w-[48%] flex flex-col gap-1">
                             <div class="bg-gray-50 p-2 rounded border border-dashed border-gray-300 text-gray-500">
                                 Liquid Rewards
                             </div>
                         </div>
 
-                        <!-- Path Right -->
                         <div class="w-[48%] flex flex-col gap-1">
-                            <!-- FIXED: Adjusted padding and font size to prevent overflow of long word -->
                             <div class="bg-brandMint p-1.5 rounded border border-black text-brandBlack text-[10px] sm:text-xs leading-tight break-words">
                                 ServicePaymaster (SPM)
                             </div>
@@ -372,14 +329,11 @@
                 </div>
             </div>
 
-            <!-- Math Section -->
             <div class="playground-card p-6 bg-brandBlack text-white">
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="text-brandMint text-sm font-bold uppercase tracking-wider">The Formula</h3>
-                     <!-- Info Icon -->
                      <div class="relative group">
                         <div class="w-5 h-5 rounded-full bg-gray-700 text-gray-300 flex items-center justify-center text-xs font-bold cursor-help hover:bg-brandMint hover:text-brandBlack transition-colors">?</div>
-                        <!-- Tooltip -->
                         <div class="absolute right-0 bottom-full mb-2 w-56 p-3 bg-brandWhite text-brandBlack border border-brandBlack text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                             Mathematical definition: Service Credits next epoch = Sum of Routing Fraction times Rewards per position.
                             <div class="tooltip-arrow" style="border-top-color: #fff;"></div>
@@ -398,7 +352,6 @@
                 </div>
             </div>
 
-            <!-- Info Text -->
             <div class="playground-card p-6">
                 <h3 class="text-sm font-bold uppercase mb-2">How it works</h3>
                 <p class="text-sm text-gray-600 leading-relaxed mb-2">
@@ -413,15 +366,13 @@
 
     </div>
 
-    <!-- Footer -->
-    <footer class="w-full max-w-6xl text-center mt-8 mb-12 text-gray-500 text-sm">
+    <footer class="w-full max-w-[98%] text-center mt-8 mb-12 text-gray-500 text-sm">
         <p class="mb-2">
             For more info visit <a href="https://www.rialo.io/posts/stake-for-service" target="_blank" class="font-bold text-brandBlack hover:underline">Rialo Official blog</a>
         </p>
         <p>Built by Aman for Rialo ❤️</p>
     </footer>
 
-    <!-- JavaScript Logic -->
     <script>
         // --- State Management ---
         const state = {
@@ -657,26 +608,7 @@
         setInterval(simulationTick, 500); // 2 ticks per second
 
         // Placeholder comments required by prompt
-        /* <!-- Chosen Palette: Mint #A9DDD3, Soft Beige #E8E3D5, Deep Black #010101 -->
-           <!-- Application Structure Plan: 
-                Single-page "Playground" layout with added Info Icons for educational context.
-                Top Left: Controls (Inputs) + Tooltips.
-                Bottom Left: Service Consumer + Tooltips.
-                Center: Visual feedback loop + Tooltips on cards.
-                Right: Educational context (Architecture & Formula) + Tooltips.
-           -->
-           <!-- Visualization & Content Choices:
-                1. Goal: Inform about the Mechanic. 
-                   Viz: Architecture Diagram. Method: HTML/CSS Flexbox. Justification: Shows flow of value clearly without complex SVG.
-                2. Goal: Compare Allocation. 
-                   Viz: Donut Chart. Method: Chart.js. Justification: Best for showing part-to-whole relationships.
-                3. Goal: Show Simulation over Time.
-                   Viz: Line Chart. Method: Chart.js. Justification: Essential to show accumulation vs depletion rates.
-                4. Goal: Contextual Help.
-                   Viz: CSS Tooltips on Hover. Method: Tailwind 'group-hover'. Justification: Provides definitions without cluttering the UI.
-           -->
-           <!-- CONFIRMATION: NO SVG graphics used (except favicon). NO Mermaid JS used. -->
-        */
+        /* */
 
     </script>
 </body>
